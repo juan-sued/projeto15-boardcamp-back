@@ -1,0 +1,32 @@
+{
+  "name": "projeto15-boardcamp-back",
+  "type": "module",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/juansued/projeto15-boardcamp-back.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/juansued/projeto15-boardcamp-back/issues"
+  },
+  "homepage": "https://github.com/juansued/projeto15-boardcamp-back#readme",
+  "description": "",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "chalk": "^5.0.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.2",
+    "express": "^4.18.1",
+    "joi": "^17.6.1",
+    "jsonwebtoken": "^8.5.1",
+    "nodemon": "^2.0.20",
+    "pg": "^8.8.0"
+  }
+}
