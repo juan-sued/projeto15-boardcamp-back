@@ -1,7 +1,7 @@
 import connection from '../databases/postgres.js';
 import registerCategorySchema from '../schemas/categorySchema.js';
 
-async function validateNewCategory(request, response, next) {
+export async function validateNewCategory(request, response, next) {
   const newCategory = request.body;
 
   const validate = registerCategorySchema.validate(newCategory, { abortEarly: false });
