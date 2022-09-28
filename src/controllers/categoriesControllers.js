@@ -10,3 +10,11 @@ export async function registerCategory(request, response) {
     return response.sendStatus(500);
   }
 }
+export async function getCategories(request, response) {
+  try {
+    const { rows: categories } = await connection.query('SELECT * FROM categories');
+    return response.status(200).send(categories);
+  } catch {
+    response.sendStatus(500);
+  }
+}
