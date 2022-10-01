@@ -2,6 +2,8 @@ import connection from '../databases/postgres.js';
 import customerSchema from '../schemas/customerSchema.js';
 
 async function ValidateNewCustomer(request, response, next) {
+  const { idCustomer } = request.params;
+
   const newCustomer = request.body;
 
   const validate = customerSchema.validate(newCustomer, { abortEarly: false });
@@ -13,9 +15,14 @@ async function ValidateNewCustomer(request, response, next) {
   }
 
   try {
-    const QUERY = 'SELECT * FROM customers';
+    const QUERY_BASIC = 'SELECT * FROM customers';
+    let query = QUERY_BASIC;
 
-    const { rows: customers } = await connection.query(QUERY);
+    if (!!idCustomer) {
+      query += ` WHERE customers.id = ${idCustomer}`;
+    }
+
+    const { rows: customers } = await connection.query(query + ';');
 
     const isCPFRegistered = customers.some(customer => customer.cpf === newCustomer.cpf);
     if (isCPFRegistered) return response.sendStatus(409);
