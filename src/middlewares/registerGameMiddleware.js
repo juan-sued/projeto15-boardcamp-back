@@ -35,4 +35,5 @@ async function validateNewGame(request, response, next) {
     response.status(500).send('erro ao validar game');
   }
 }
+
 export default validateNewGame;
