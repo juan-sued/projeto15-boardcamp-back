@@ -16,18 +16,20 @@ async function validateRental(request, response, next) {
     const QUERY_BASIC = 'SELECT * FROM ';
 
     const { rows: customer } = await connection.query(
-      QUERY_BASIC + `customers WHERE customers.id = ${newRental.customerId};`
+      QUERY_BASIC + `customers WHERE customers.id = $1;`,
+      [newRental.customerId]
     );
     if (!customer) return response.sendStatus(400);
 
-    const { rows: searhGameAndDisponibility } = await connection.query(
+    const { rows: gameSelected } = await connection.query(
       QUERY_BASIC +
         `games JOIN rentals ON games.id = rentals."gameId" WHERE games.id = ${newRental.gameId};`
     );
 
-    if (!searhGameAndDisponibility) {
+    if (!gameSelected) {
       return response.sendStatus(400);
-    } else if (searhGameAndDisponibility.length >= gameSelected[0].stockTotal) {
+    } else if (gameSelected.length >= gameSelected[0].stockTotal) {
+      console.log(gameSelected.length);
       response.sendStatus(400);
     } else {
       response.locals.gameSelected = gameSelected;

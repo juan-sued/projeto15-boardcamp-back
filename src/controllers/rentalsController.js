@@ -1,8 +1,12 @@
+import dayjs from 'dayjs';
+import connection from '../databases/postgres.js';
+
 export async function registerRental(request, response) {
   const newRental = request.body;
   const { gameSelected } = response.locals;
   const daysRentedCount = newRental.daysRented;
   const today = dayjs().format('YYYY-MM-DD');
+  console.log(gameSelected);
 
   try {
     await connection.query(
@@ -16,7 +20,7 @@ export async function registerRental(request, response) {
       ${null}
       );`
     );
-    return;
+    return response.sendStatus(201);
   } catch {
     return response.status(500).send('erro ao registrar rental');
   }
