@@ -142,13 +142,12 @@ export async function returnRental(request, response) {
   const today = dayjs(Date.now());
 
   const delayFee =
-    dayjs(today).diff(dayjs(dayjs(rentDate).add(daysRented, 'day')), 'day') *
-    -pricePerDay;
+    today.diff(dayjs(dayjs(rentDate).add(daysRented, 'day')), 'day') * -pricePerDay;
 
   try {
     await connection.query(
       `UPDATE rentals SET "returnDate" = $1, "delayFee" = $2 WHERE rentals.id = $3;`,
-      [dayjs().format('YYYY-MM-DD'), delayFee, rentalSelected.id]
+      [today, delayFee, rentalSelected[0].id]
     );
 
     return response.sendStatus(200);
@@ -160,7 +159,7 @@ export async function returnRental(request, response) {
 export async function deleteRental(request, response) {
   const { rentalSelected } = response.locals;
   try {
-    await connection.query(`DELETE FROM rentals WHERE rentals.id = $1`, [
+    await connection.query(`DELETE FROM rentals WHERE rentals.id = $1;`, [
       rentalSelected[0].id
     ]);
 

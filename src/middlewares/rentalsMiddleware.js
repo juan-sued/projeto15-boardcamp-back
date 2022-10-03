@@ -54,11 +54,16 @@ export async function validateRental(request, response, next) {
 
 export async function validateReturnRental(request, response, next) {
   const { idRental } = request.params;
-  const query = `SELECT * FROM rentals JOIN games ON games.id = rentals."gameId" WHERE rentals.id = $1;`;
+
+  const query = `SELECT rentals.*, games.id AS "idOfGame", games."pricePerDay" AS "pricePerDay", rentals."returnDate" AS "returnDate" FROM rentals JOIN games ON games.id = rentals."gameId" WHERE rentals.id = $1;`;
+
   try {
     const { rows: rentalSelected } = await connection.query(query, [idRental]);
 
+    if (!!rentalSelected[0].returnDate) return response.sendStatus(400);
+
     if (rentalSelected.length === 0) return response.sendStatus(404);
+
     response.locals.rentalSelected = rentalSelected;
     next();
   } catch {
