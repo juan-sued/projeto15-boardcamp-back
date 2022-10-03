@@ -132,3 +132,40 @@ export async function getRentals(request, response) {
     return response.sendStatus(500);
   }
 }
+
+export async function returnRental(request, response) {
+  const { rentalSelected } = response.locals;
+
+  const { rentDate } = rentalSelected[0];
+  const { daysRented } = rentalSelected[0];
+  const { pricePerDay } = rentalSelected[0];
+  const today = dayjs(Date.now());
+
+  const delayFee =
+    dayjs(today).diff(dayjs(dayjs(rentDate).add(daysRented, 'day')), 'day') *
+    -pricePerDay;
+
+  try {
+    await connection.query(
+      `UPDATE rentals SET "returnDate" = $1, "delayFee" = $2 WHERE rentals.id = $3;`,
+      [dayjs().format('YYYY-MM-DD'), delayFee, rentalSelected.id]
+    );
+
+    return response.sendStatus(200);
+  } catch {
+    return response.status(500).send('erro ao retornar jogo');
+  }
+}
+
+export async function deleteRental(request, response) {
+  const { rentalSelected } = response.locals;
+  try {
+    await connection.query(`DELETE FROM rentals WHERE rentals.id = $1`, [
+      rentalSelected[0].id
+    ]);
+
+    return response.sendStatus(200);
+  } catch {
+    return response.status(500).send('erro ao deletar rental');
+  }
+}

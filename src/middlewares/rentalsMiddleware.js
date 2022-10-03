@@ -1,7 +1,7 @@
 import connection from '../databases/postgres.js';
 import rentalSchema from '../schemas/rentalSchema.js';
 
-async function validateRental(request, response, next) {
+export async function validateRental(request, response, next) {
   const newRental = request.body;
 
   const validate = rentalSchema.validate(newRental, { abortEarly: false });
@@ -52,4 +52,34 @@ async function validateRental(request, response, next) {
   }
 }
 
-export default validateRental;
+export async function validateReturnRental(request, response, next) {
+  const { idRental } = request.params;
+  const query = `SELECT * FROM rentals JOIN games ON games.id = rentals."gameId" WHERE rentals.id = $1;`;
+  try {
+    const { rows: rentalSelected } = await connection.query(query, [idRental]);
+
+    if (rentalSelected.length === 0) return response.sendStatus(404);
+    response.locals.rentalSelected = rentalSelected;
+    next();
+  } catch {
+    response.status(500).send('erro ao validar return');
+  }
+}
+export async function validateDeleteRental(request, response, next) {
+  const { idRental } = request.params;
+  const query = `SELECT * FROM rentals WHERE rentals.id = $1;`;
+  try {
+    const { rows: rentalSelected } = await connection.query(query, [idRental]);
+
+    if (!rentalSelected[0]) return response.sendStatus(404);
+
+    if (rentalSelected[0].returnDate === null) {
+      return response.sendStatus(400);
+    }
+
+    response.locals.rentalSelected = rentalSelected;
+    next();
+  } catch {
+    response.status(500).send('erro ao validar return');
+  }
+}
