@@ -6,11 +6,12 @@ async function validateRental(request, response, next) {
 
   const validate = rentalSchema.validate(newRental, { abortEarly: false });
   const { error } = validate;
-
   if (error) {
     const errors = error.details.map(err => err.message);
     return response.status(400).send(errors);
   }
+
+  if (newRental.daysRented < 0) return response.sendStatus(400);
 
   try {
     const QUERY_BASIC = 'SELECT * FROM ';
@@ -19,17 +20,28 @@ async function validateRental(request, response, next) {
       QUERY_BASIC + `customers WHERE customers.id = $1;`,
       [newRental.customerId]
     );
+
     if (!customer) return response.sendStatus(400);
 
+    //========================================================
+
     const { rows: gameSelected } = await connection.query(
-      QUERY_BASIC +
-        `games JOIN rentals ON games.id = rentals."gameId" WHERE games.id = ${newRental.gameId};`
+      QUERY_BASIC + `games WHERE games.id = $1;`,
+      [newRental.gameId]
     );
 
-    if (!gameSelected) {
+    if (!gameSelected) return response.sendStatus(400);
+
+    //==========================================================
+
+    const { rows: rentals } = await connection.query(
+      QUERY_BASIC + `rentals WHERE rentals."gameId" = $1`,
+      [newRental.gameId]
+    );
+
+    if (!rentals) {
       return response.sendStatus(400);
-    } else if (gameSelected.length >= gameSelected[0].stockTotal) {
-      console.log(gameSelected.length);
+    } else if (rentals.length >= gameSelected[0].stockTotal) {
       response.sendStatus(400);
     } else {
       response.locals.gameSelected = gameSelected;
